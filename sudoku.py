@@ -90,15 +90,3 @@ def initialize_domains(grid):
     return domains
 
 
-# Test
-if __name__ == "__main__":
-
-    variables = find_empty_grid(grid)
-    domains = initialize_domains(grid)
-
-    print("Empty cells:", len(variables))
-    print("Neighbors of (0,1):", len(get_neighbors(0, 1)))
-    print("Domain of (0,1):", domains[(0, 1)])
-
-    print("Place 1:", constraints_check(grid, 0, 1, 1))
-    print("Place 5:", constraints_check(grid, 0, 1, 5))
