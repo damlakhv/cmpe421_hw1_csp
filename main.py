@@ -1,9 +1,10 @@
 from copy import deepcopy
 from time import perf_counter
+from statistics import mean, median
 
 from sudoku import grid
 from solver import backtracking
-
+from visualize import visualize_solutions, visualize_benchmark
 
 methods = [
     ("Backtracking + LCV", False, "none"),
@@ -14,35 +15,69 @@ methods = [
     ("Backtracking + MAC + MRV + LCV", True, "mac")
 ]
 
+solutions = {}
+benchmark_results = []
+repetitions = 30
+
 for name, use_mrv, inference in methods:
 
-    # Fresh Sudoku for each algorithm
-    board = deepcopy(grid)
+    times = []
+    backtracks = []
+    assignments = []
 
-    stats = {
-    "backtracks": 0,
-    "assignments": 0
-    }
+    for run in range(repetitions):
 
-    start = perf_counter()
+        board = deepcopy(grid)
 
-    solved = backtracking(
-        board,
-        stats,
-        use_mrv=use_mrv,
-        inference=inference
-    )
+        stats = {
+            "backtracks": 0,
+            "assignments": 0
+        }
 
-    end = perf_counter()
-    elapsed_ms = (end - start) * 1000
+        start = perf_counter()
+
+        solved = backtracking(
+            board,
+            stats,
+            use_mrv=use_mrv,
+            inference=inference
+        )
+
+        end = perf_counter()
+        elapsed_ms = (end - start) * 1000
+
+        if not solved:
+            raise RuntimeError(f"Sudoku could not be solved: {name}")
+
+        times.append(elapsed_ms)
+        backtracks.append(stats["backtracks"])
+        assignments.append(stats["assignments"])
+
+        if run == 0:
+            solutions[name] = deepcopy(board)
+
+    average_time = mean(times)
+    median_time = median(times)
 
     print(f"\nAlgorithm: {name}")
-    print(f"Solved: {solved}")
-    print(f"Time: {elapsed_ms:.3f} ms")
-    print(f"Assignments: {stats['assignments']}")
-    print(f"Backtracks: {stats['backtracks']}")
+    print(f"Solved: True")
+    print(f"Average Time: {average_time:.3f} ms")
+    print(f"Median Time: {median_time:.3f} ms")
+    print(f"Assignments: {assignments[0]}")
+    print(f"Backtracks: {backtracks[0]}")
+
+    for row in solutions[name]:
+        print(row)
+
+    if len(set(backtracks)) != 1 or len(set(assignments)) != 1:
+        print("Warning: operation counts varied between runs.")
+
+    benchmark_results.append({
+        "name": name,
+        "mean_ms": average_time,
+        "backtracks": backtracks[0]
+    })
 
 
-    if solved:
-        for row in board:
-            print(row)
+visualize_solutions(solutions, grid)
+visualize_benchmark(benchmark_results)
