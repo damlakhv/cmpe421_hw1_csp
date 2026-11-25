@@ -7,9 +7,11 @@ from solver import backtracking
 
 methods = [
     ("Backtracking + LCV", False, "none"),
-    ("Backtracking + MRV + LCV", True, "none"),
     ("Backtracking + FC + LCV", False, "fc"),
-    ("Backtracking + FC + MRV + LCV", True, "fc")
+    ("Backtracking + MAC + LCV", False, "mac"),
+    ("Backtracking + MRV + LCV", True, "none"),
+    ("Backtracking + FC + MRV + LCV", True, "fc"),
+    ("Backtracking + MAC + MRV + LCV", True, "mac")
 ]
 
 for name, use_mrv, inference in methods:
