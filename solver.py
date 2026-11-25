@@ -22,20 +22,23 @@ def order_values_lcv(board, row, col):
         return impact
     return sorted(values, key=lambda value: (count_impact(value), value))
 
-def backtracking(board, stats):
+def backtracking(board, stats, use_mrv=False):
 
-    empty_cells = find_empty_grid(board)
-    if not empty_cells:
+    cell = select_variable(board, use_mrv)
+
+    if cell is None:
         return True
 
-    row, col = empty_cells[0]
-    values = order_values_lcv(board, row, col) #find possible values with lcv
+    row, col = cell
+
+    values = order_values_lcv(board, row, col) 
 
     for value in values:
         if constraints_check(board, row, col, value):
             board[row][col] = value
+            stats["assignments"] += 1
 
-            if backtracking(board, stats):
+            if backtracking(board, stats, use_mrv):
                 return True
 
             board[row][col] = 0
@@ -43,8 +46,17 @@ def backtracking(board, stats):
 
     return False
 
-if __name__ == "__main__":
-    from sudoku import grid
+def select_variable(board, use_mrv=False):
 
-    print("Original domain:", get_domain(grid, 0, 1))
-    print("LCV order:", order_values_lcv(grid, 0, 1))
+    empty_cells = find_empty_grid(board)
+
+    if not empty_cells:
+        return None
+
+    if not use_mrv:
+        return empty_cells[0]
+
+    return min(
+        empty_cells,
+        key=lambda cell: len(get_domain(board, cell[0], cell[1]))
+    )
