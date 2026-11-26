@@ -89,4 +89,34 @@ def initialize_domains(grid):
 
     return domains
 
+def validate_solution(board, original_grid):
 
+    digits = set(range(1, 10))
+
+    for row in range(9):
+        if set(board[row]) != digits:
+            return False
+
+    for col in range(9):
+        if {board[row][col] for row in range(9)} != digits:
+            return False
+
+    for box_row in range(0, 9, 3):
+        for box_col in range(0, 9, 3):
+
+            box = {
+                board[row][col]
+                for row in range(box_row, box_row + 3)
+                for col in range(box_col, box_col + 3)
+            }
+
+            if box != digits:
+                return False
+
+    for row in range(9):
+        for col in range(9):
+            if original_grid[row][col] != 0:
+                if board[row][col] != original_grid[row][col]:
+                    return False
+
+    return True
